@@ -34,6 +34,16 @@ class ZaiProvider:
 
         return self._probe(headers)
 
+    def _busy_result(self, source: str) -> dict:
+        return {
+            "unit": "CNY",
+            "account_status": "busy",
+            "is_available": False,
+            "data_source": source,
+            "display_balance": "系统忙",
+            "note": "HTTP 429 Too Many Requests.",
+        }
+
     def _try_balance_api(self, headers: dict):
         try:
             resp = requests.get(
@@ -52,6 +62,8 @@ class ZaiProvider:
                     "display_balance": "余额不足 (HTTP 402)",
                     "note": "Balance API returned 402.",
                 }
+            if resp.status_code == 429:
+                return self._busy_result("balance_api_attempt")
             resp.raise_for_status()
             body    = resp.json()
             balance = (
@@ -95,6 +107,9 @@ class ZaiProvider:
                 "display_balance": "余额不足 (HTTP 402)",
                 "note": "No public balance API. Probe returned 402.",
             }
+
+        if resp.status_code == 429:
+            return self._busy_result("probe")
 
         resp.raise_for_status()
 
