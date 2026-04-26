@@ -12,7 +12,7 @@ import os
 import requests
 
 BASE_URL    = "https://api.z.ai/api/paas/v4"
-PROBE_MODEL = "glm-4-flash"
+PROBE_MODEL = "glm-4.7"
 
 
 class ZaiProvider:
